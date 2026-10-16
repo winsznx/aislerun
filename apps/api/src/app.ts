@@ -28,6 +28,7 @@ import { identityFromHeader, identityFromPayload } from "./payment-identity.js";
 import { paidAccepts } from "./payments.js";
 import { renderDocsPage, renderRunPage } from "./pages.js";
 import { rateLimit } from "./rate-limit.js";
+import { loadDemoRuns, parseDemoRuns, renderDemoPage, renderHomePage } from "./public-pages.js";
 
 const QUOTE_TTL_MS = 15 * 60 * 1000;
 const ASSET_URL_TTL_SEC = 30 * 60;
@@ -472,6 +473,16 @@ export function createApp(deps: AppDeps): express.Express {
   app.get("/runs/:id", (_req, res) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'");
     res.type("html").send(renderRunPage());
+  });
+  const demoRefs = parseDemoRuns(config.DEMO_RUNS);
+  const PUBLIC_CSP = "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; media-src 'self'; img-src 'self'";
+  app.get("/", async (_req, res) => {
+    res.setHeader("Content-Security-Policy", PUBLIC_CSP);
+    res.type("html").send(renderHomePage(config, await loadDemoRuns(db, config, demoRefs)));
+  });
+  app.get("/demo", async (_req, res) => {
+    res.setHeader("Content-Security-Policy", PUBLIC_CSP);
+    res.type("html").send(renderDemoPage(config, await loadDemoRuns(db, config, demoRefs)));
   });
   app.get("/docs", (_req, res) => {
     res.type("html").send(renderDocsPage(config));
