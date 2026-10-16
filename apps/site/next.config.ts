@@ -4,6 +4,10 @@ const api = process.env.NEXT_PUBLIC_API_URL ?? "https://aislerun.158-220-85-120.
 
 const config: NextConfig = {
   poweredByHeader: false,
+  turbopack: { root: import.meta.dirname },
+  async rewrites() {
+    return [{ source: "/docs/:slug.md", destination: "/docs/md/:slug" }];
+  },
   async headers() {
     return [
       {

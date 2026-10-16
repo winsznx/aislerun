@@ -69,22 +69,3 @@
 .scopePanel ul { margin-top: 18px; display: flex; flex-direction: column; }
 .scopePanel li { padding: 12px 0; border-top: 1px solid var(--border-strong); color: var(--ink-secondary); }
 @media (max-width: 760px) { .scope { grid-template-columns: 1fr; } }
-
-/* ---------- docs ---------- */
-.docs { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px; padding-top: 64px; }
-.docsNav { position: sticky; top: 96px; align-self: start; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
-.docsNav a { color: var(--ink-secondary); padding: 8px 12px; border-radius: 10px; }
-.docsNav a:hover { background: var(--surface-muted); color: var(--ink); }
-.docsBody { max-width: 760px; min-width: 0; }
-.docsBody h1 { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.06; letter-spacing: -0.034em; font-weight: 500; }
-.docsBody h2 { margin-top: 56px; font-size: 26px; font-weight: 500; letter-spacing: -0.022em; scroll-margin-top: 96px; }
-.docsBody > p, .docsBody section > p { margin-top: 14px; color: var(--ink-secondary); line-height: 1.7; }
-.docsBody code { font-family: var(--font-mono), monospace; font-size: 0.88em; background: var(--surface-muted); padding: 2px 6px; border-radius: 6px; color: var(--ink); overflow-wrap: anywhere; }
-.docsBody pre { margin-top: 16px; padding: 18px 20px; border-radius: 16px; background: #0f1012; color: #e7e9ee; overflow-x: auto; font: 13px/1.65 var(--font-mono), monospace; }
-.docsBody pre code { background: none; padding: 0; color: inherit; }
-.docTable { margin-top: 16px; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
-.docTable div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 14px 18px; border-top: 1px solid var(--border); font-size: 14px; color: var(--ink-secondary); align-items: start; }
-.docTable div:first-child { border-top: 0; }
-.docList { margin-top: 14px; display: flex; flex-direction: column; }
-.docList li { padding: 12px 0; border-top: 1px solid var(--border); color: var(--ink-secondary); }
-@media (max-width: 860px) { .docs { grid-template-columns: 1fr; gap: 20px; } .docsNav { position: static; flex-direction: row; flex-wrap: wrap; } .docTable div { grid-template-columns: 1fr; gap: 6px; } }

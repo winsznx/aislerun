@@ -23,3 +23,10 @@ jobs:
           if git grep -nE '(pbx_live_[A-Za-z0-9]+|-----BEGIN [A-Z ]*PRIVATE KEY|0x[0-9a-fA-F]{64}"?\s*$)' -- ':!docs/evidence' ':!docs/EVIDENCE_INDEX.md' ':!docs/SPONSOR_BEHAVIOUR.md' ':!docs/INTEGRATION_FINDINGS.md'; then
             echo "possible secret committed"; exit 1; fi
       - run: npm test
+      - name: Web app typecheck, docs tests and build
+        working-directory: apps/site
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm test
+          npx next build
