@@ -15,6 +15,7 @@ const ConfigSchema = z.object({
   WORKER_ENABLED: z.enum(["true", "false"]).default("true"),
   BUILD_VERSION: z.string().default("dev"),
   DEMO_RUNS: z.string().optional(),
+  EXTRA_WEB_ORIGINS: z.string().optional(),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;

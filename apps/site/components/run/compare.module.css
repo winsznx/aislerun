@@ -1,0 +1,33 @@
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); gap: 12px; align-items: stretch; margin-bottom: 16px; }
+.arrow { align-self: center; justify-self: center; width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--surface-muted); color: var(--ink-secondary); }
+.summary { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: var(--radius-tile); border: 1px solid var(--border); background: var(--surface-muted); transition: border-color 140ms ease; }
+.summary:hover { border-color: var(--border-strong); }
+.summaryLabel { font-size: 13px; color: var(--ink-secondary); }
+.summary strong { font-size: 22px; line-height: 1.2; letter-spacing: -0.025em; font-weight: 600; }
+.summaryMeta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-secondary); }
+.summaryMeta .mono { font-size: 12px; color: var(--ink-muted); }
+@media (max-width: 760px) { .pair { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); } }
+
+.switch { display: none; gap: 6px; margin-bottom: 12px; }
+.switch button { border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink-secondary); min-height: 40px; padding: 0 18px; font-size: 13px; }
+.switch button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.stages { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.side { min-width: 0; }
+@media (max-width: 1080px) {
+  .switch { display: inline-flex; }
+  .stages { grid-template-columns: 1fr; }
+  .side[data-hidden-narrow="true"] { display: none; }
+}
+.footnote { margin-top: 10px; font-size: 12px; color: var(--ink-muted); }
+
+.tableScroll { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table tr:last-child th, .table tr:last-child td { border-bottom: 0; }
+.table thead th { font-size: 12px; font-weight: 500; color: var(--ink-muted); }
+.table tbody th { font-weight: 500; color: var(--ink-secondary); white-space: nowrap; }
+.table .mono { font-size: 12px; }
+.cellRow { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.diff { margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--surface-muted); overflow-x: auto; font: 13px/1.6 var(--font-mono), ui-monospace, monospace; }
+.del { color: var(--fail); }
+.add { color: var(--pass); }

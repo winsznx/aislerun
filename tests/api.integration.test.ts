@@ -32,7 +32,7 @@ describeDb("API (integration)", () => {
     const config: Config = {
       PORT: 0,
       SERVICE_BASE_URL: "http://127.0.0.1",
-      WEB_BASE_URL: "http://127.0.0.1",
+      WEB_BASE_URL: "https://aislerun.example",
       DATABASE_URL: t.url,
       PAYMENT_RECEIVER: "0x50b174FAF12a7c7D6618Ac65D71DF613fEa0F57f",
       X402_NETWORK: "eip155:8453",
@@ -185,7 +185,7 @@ describeDb("API (integration)", () => {
     const { rows } = await db.query("SELECT id FROM inspections LIMIT 1");
     // #when it is requested through the public demo API and page
     const api = await fetch(`${base}/v1/demo/reports/${rows[0].id}`);
-    const page = await fetch(`${base}/demo/runs/${rows[0].id}`, { headers: { accept: "text/html" } });
+    const page = await fetch(`${base}/v1/demo/reports/${rows[0].id}/`);
     const list = await (await fetch(`${base}/v1/demo/runs`)).text();
     // #then nothing is exposed
     expect({ api: api.status, page: page.status, leaksToken: /rt_/.test(list) }).toEqual({ api: 404, page: 404, leaksToken: false });
@@ -197,11 +197,19 @@ describeDb("API (integration)", () => {
     expect(res.status).toBe(401);
   });
 
-  it("public pages render with a script-src 'self' CSP", async () => {
-    for (const path of ["/", "/demo", "/docs", "/demo/compare"]) {
-      const res = await fetch(`${base}${path}`);
-      expect({ path, status: res.status, csp: res.headers.get("content-security-policy")?.includes("script-src 'self'") }).toEqual({ path, status: 200, csp: true });
-    }
+  it("redirects old page links to the web app and allows CORS only for the web origin", async () => {
+    // #given the API's own host
+    const page = await fetch(`${base}/demo/runs/abc`, { redirect: "manual" });
+    const allowed = await fetch(`${base}/v1/demo/runs`, { headers: { origin: "https://aislerun.example" } });
+    const other = await fetch(`${base}/v1/demo/runs`, { headers: { origin: "https://evil.example" } });
+    const preflight = await fetch(`${base}/v1/reports/x`, { method: "OPTIONS", headers: { origin: "https://aislerun.example", "access-control-request-headers": "authorization" } });
+    // #then pages move to the web origin and only that origin may read the API from a browser
+    expect({
+      location: page.headers.get("location"),
+      allowed: allowed.headers.get("access-control-allow-origin"),
+      other: other.headers.get("access-control-allow-origin"),
+      preflight: preflight.status,
+    }).toEqual({ location: "https://aislerun.example/demo/runs/abc", allowed: "https://aislerun.example", other: null, preflight: 204 });
   });
 
   it("reads require the inspection's own token", async () => {

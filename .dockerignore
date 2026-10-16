@@ -1,8 +1,10 @@
-node_modules
+**/node_modules
 .git
 .env
 .env.*
 internal
 .evidence
 apps/fixtures/dist
+apps/site
 test-results
+docs/media

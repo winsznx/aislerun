@@ -11,5 +11,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["apps", "packages", "db", "scripts", "tests"]
+  "include": ["apps", "packages", "db", "scripts", "tests"],
+  "exclude": ["apps/site", "node_modules"]
 }

@@ -28,7 +28,6 @@ import { paidAccepts } from "./payments.js";
 import { rateLimit } from "./rate-limit.js";
 import { parseDemoRuns } from "./demo.js";
 import { buildReport, checkComparable, comparisonBody, type InspectionRow } from "./report.js";
-import { registerWebRoutes, renderNotFound } from "../../web/src/routes.js";
 
 const QUOTE_TTL_MS = 15 * 60 * 1000;
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
@@ -86,6 +85,22 @@ export function createApp(deps: AppDeps): express.Express {
   const app = express();
   app.set("trust proxy", true);
   app.disable("x-powered-by");
+  const webOrigins = new Set([new URL(config.WEB_BASE_URL).origin, ...(config.EXTRA_WEB_ORIGINS ?? "").split(",").filter(Boolean).map((o) => new URL(o).origin)]);
+  app.use((req, res, next) => {
+    const origin = req.header("origin");
+    if (origin && webOrigins.has(origin) && req.path.startsWith("/v1/")) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Headers", "Authorization, X-Read-Tokens, Content-Type");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader("Access-Control-Max-Age", "600");
+      if (req.method === "OPTIONS") {
+        res.status(204).end();
+        return;
+      }
+    }
+    next();
+  });
   app.use(express.json({ limit: "16kb" }));
   app.use((req, res, next) => {
     req.requestId = `req_${randomUUID()}`;
@@ -492,20 +507,12 @@ export function createApp(deps: AppDeps): express.Express {
     }),
   );
 
-  registerWebRoutes(app, { config, loadDemoReports: async () => {
-    const out = [];
-    for (const ref of demoRefs) {
-      const row = await loadRow(ref.id);
-      if (row) out.push({ role: ref.role, report: await buildReport(db, config, row) });
-    }
-    return out;
-  } });
+  // The web app lives on its own origin (WEB_BASE_URL). Old page links on this host redirect there.
+  app.get(["/", "/demo", "/demo/compare", "/demo/runs/:id", "/runs/:id", "/runs/:id/compare/:otherId", "/docs"], (req, res) => {
+    res.redirect(302, new URL(req.originalUrl, config.WEB_BASE_URL).toString());
+  });
 
   app.use((req, res) => {
-    if (req.accepts(["html", "json"]) === "html" && !req.path.startsWith("/v1/")) {
-      res.status(404).type("html").send(renderNotFound(config.BUILD_VERSION));
-      return;
-    }
     res.status(404).json({ ok: false, code: "JOB_NOT_FOUND", message: "Not found.", retryable: false, request_id: req.requestId });
   });
   app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
