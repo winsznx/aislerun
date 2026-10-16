@@ -7,3 +7,4 @@ artifacts-local/
 test-results/
 internal/
 apps/fixtures/dist/
+.evidence/

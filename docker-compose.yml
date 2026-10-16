@@ -1,0 +1,21 @@
+# Local deployment on the operator's Mac. The API is published to the internet only through the
+# cloudflared quick tunnel; Postgres is bound to loopback.
+name: aislerun
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: aislerun
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: aislerun
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aislerun"]
+      interval: 3s
+      retries: 20
+
+
+volumes:
+  pgdata:
