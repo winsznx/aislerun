@@ -31,8 +31,8 @@ export class EvidenceStore {
     return { key, bytes: data.length, sha256 };
   }
 
-  open(key: string): ReadStream {
-    return createReadStream(this.pathFor(key));
+  open(key: string, range?: { start: number; end: number }): ReadStream {
+    return createReadStream(this.pathFor(key), range);
   }
 
   private pathFor(key: string): string {

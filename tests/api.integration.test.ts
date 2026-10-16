@@ -43,6 +43,7 @@ describeDb("API (integration)", () => {
       FIXTURE_ORIGIN,
       WORKER_ENABLED: "false",
       BUILD_VERSION: "test",
+      DEMO_RUNS: undefined,
     };
     const resourceServer = createResourceServer({ network: config.X402_NETWORK, facilitatorUrl: config.X402_FACILITATOR_URL, receiver: config.PAYMENT_RECEIVER, priceUsd: config.INSPECTION_PRICE_USD });
     const app = createApp({ config, db, evidence: new EvidenceStore(config.EVIDENCE_DIR), resourceServer });
@@ -177,6 +178,30 @@ describeDb("API (integration)", () => {
       statuses.push((await post("/v1/quotes", { product_url: "https://example.com/x", authorized_target_id: "fixture-healthy-v1", profile: "shopify_checkout_entry_v1" })).status);
     }
     expect(statuses.at(-1)).toBe(429);
+  });
+
+  it("demo endpoints serve only allowlisted runs and never include read tokens", async () => {
+    // #given an inspection that is not in DEMO_RUNS
+    const { rows } = await db.query("SELECT id FROM inspections LIMIT 1");
+    // #when it is requested through the public demo API and page
+    const api = await fetch(`${base}/v1/demo/reports/${rows[0].id}`);
+    const page = await fetch(`${base}/demo/runs/${rows[0].id}`, { headers: { accept: "text/html" } });
+    const list = await (await fetch(`${base}/v1/demo/runs`)).text();
+    // #then nothing is exposed
+    expect({ api: api.status, page: page.status, leaksToken: /rt_/.test(list) }).toEqual({ api: 404, page: 404, leaksToken: false });
+  });
+
+  it("private comparison requires both read tokens", async () => {
+    const { rows } = await db.query("SELECT id FROM inspections LIMIT 2");
+    const res = await fetch(`${base}/v1/comparisons/${rows[0].id}/${rows[1]?.id ?? rows[0].id}`, { headers: { "x-read-tokens": "rt_a,rt_b" } });
+    expect(res.status).toBe(401);
+  });
+
+  it("public pages render with a script-src 'self' CSP", async () => {
+    for (const path of ["/", "/demo", "/docs", "/demo/compare"]) {
+      const res = await fetch(`${base}${path}`);
+      expect({ path, status: res.status, csp: res.headers.get("content-security-policy")?.includes("script-src 'self'") }).toEqual({ path, status: 200, csp: true });
+    }
   });
 
   it("reads require the inspection's own token", async () => {

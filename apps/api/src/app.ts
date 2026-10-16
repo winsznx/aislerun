@@ -20,18 +20,17 @@ import {
   deriveReadToken,
   hashToken,
   sha256Hex,
-  signAssetUrl,
   tokenMatches,
   verifyAssetSignature,
 } from "../../../packages/shared/src/tokens.js";
 import { identityFromHeader, identityFromPayload } from "./payment-identity.js";
 import { paidAccepts } from "./payments.js";
-import { renderDocsPage, renderRunPage } from "./pages.js";
 import { rateLimit } from "./rate-limit.js";
-import { loadDemoRuns, parseDemoRuns, renderDemoPage, renderHomePage } from "./public-pages.js";
+import { parseDemoRuns } from "./demo.js";
+import { buildReport, checkComparable, comparisonBody, type InspectionRow } from "./report.js";
+import { registerWebRoutes, renderNotFound } from "../../web/src/routes.js";
 
 const QUOTE_TTL_MS = 15 * 60 * 1000;
-const ASSET_URL_TTL_SEC = 30 * 60;
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const MAX_BACKLOG = 10;
 
@@ -388,66 +387,9 @@ export function createApp(deps: AppDeps): express.Express {
     "/v1/reports/:id",
     wrap(async (req, res) => {
       const row = await authorizedInspection(req);
-      res.json(envelope(req, await buildReport(row)));
+      res.json(envelope(req, await buildReport(db, config, row)));
     }),
   );
-
-  async function buildReport(row: Record<string, any>) {
-    const [target, payment, runs, steps, artifacts] = await Promise.all([
-      db.query("SELECT id, origin, label, fixture_version FROM authorized_targets WHERE id = $1", [row.target_id]),
-      db.query("SELECT state, network, settlement_reference, settled_at, amount_atomic FROM payments WHERE id = $1", [row.payment_id]),
-      db.query("SELECT * FROM viewport_runs WHERE inspection_id = $1 ORDER BY start_at", [row.id]),
-      db.query("SELECT s.* FROM steps s JOIN viewport_runs v ON v.id = s.viewport_run_id WHERE v.inspection_id = $1 ORDER BY s.started_at, s.ordinal", [row.id]),
-      db.query("SELECT id, viewport_run_id, kind, label, mime_type, bytes, sha256, created_at FROM artifacts WHERE inspection_id = $1 ORDER BY created_at, label", [row.id]),
-    ]);
-    const exp = Math.floor(Date.now() / 1000) + ASSET_URL_TTL_SEC;
-    const terminal = TERMINAL_STATUSES.includes(row.status as InspectionStatus);
-    const ready = terminal && (row.status === "COMPLETED" || row.status === "INCONCLUSIVE") && artifacts.rows.length > 0;
-    const pay = payment.rows[0];
-    return {
-      inspection_id: row.id,
-      run_label: `AR-${String(row.id).slice(0, 8).toUpperCase()}`,
-      report_status: ready ? "READY" : terminal ? "UNAVAILABLE" : "PENDING",
-      status: row.status,
-      overall_verdict: row.overall_verdict,
-      error_code: row.error_code,
-      target: { ...target.rows[0], product_url: row.product_url },
-      fixture_disclosure: target.rows[0]?.fixture_version
-        ? `Synthetic AisleRun test fixture ${target.rows[0].fixture_version}. Any defect on it is seeded on purpose; no real merchant is affected.`
-        : null,
-      profile: row.profile,
-      created_at: row.created_at,
-      started_at: row.started_at,
-      completed_at: row.completed_at,
-      viewports: runs.rows.map((run) => ({
-        viewport: run.viewport,
-        size: VIEWPORTS[run.viewport as keyof typeof VIEWPORTS],
-        verdict: run.verdict,
-        blocker: run.blocker,
-        attempts: run.attempts,
-        browser_version: run.browser_version,
-        fixture_version: run.fixture_version,
-        started_at: run.start_at,
-        ended_at: run.end_at,
-        console_errors: run.console_errors_json,
-        blocked_requests: run.blocked_requests_json,
-        steps: steps.rows
-          .filter((s) => s.viewport_run_id === run.id)
-          .map((s) => ({ ordinal: s.ordinal, action: s.action, expected: s.expected_json, observed: s.observed_json, result: s.result, started_at: s.started_at, ended_at: s.ended_at, decision: s.decision_sentence, is_first_blocker: s.id === run.first_blocker_step_id })),
-        artifacts: artifacts.rows
-          .filter((a) => a.viewport_run_id === run.id)
-          .map((a) => ({ id: a.id, kind: a.kind, label: a.label, mime_type: a.mime_type, bytes: Number(a.bytes), sha256: a.sha256, url: `${config.SERVICE_BASE_URL}/v1/reports/${row.id}/assets/${a.id}?exp=${exp}&sig=${signAssetUrl(config.REPORT_TOKEN_SECRET, row.id, a.id, exp)}`, url_expires_at: new Date(exp * 1000).toISOString() })),
-      })),
-      classification_source: "Deterministic scripted journey and rule-based classifier (packages/inspection). No language model produced this verdict.",
-      limitations: [
-        "Synthetic journey to the checkout entrance only. No order, payment details or account login were used.",
-        "A PASS shows this journey succeeded in this run; it does not prove every buyer can check out.",
-        "Chromium only. Root causes are not claimed; console errors are shown as raw evidence.",
-      ],
-      payment: pay ? { state: pay.state, network: pay.network, amount_atomic: String(pay.amount_atomic), settlement_reference: pay.settlement_reference, settled_at: pay.settled_at } : null,
-      provenance: { build: config.BUILD_VERSION, profile: row.profile },
-    };
-  }
 
   app.get(
     "/v1/reports/:id/assets/:assetId",
@@ -462,33 +404,108 @@ export function createApp(deps: AppDeps): express.Express {
       const { rows } = await db.query("SELECT object_key, mime_type, bytes FROM artifacts WHERE id = $1 AND inspection_id = $2", [assetId, id]);
       const asset = rows[0];
       if (!asset) throw new ApiError(404, "JOB_NOT_FOUND", "No such asset for this inspection.");
+      const size = Number(asset.bytes);
       res.setHeader("Content-Type", asset.mime_type);
-      res.setHeader("Content-Length", String(asset.bytes));
+      res.setHeader("Accept-Ranges", "bytes");
       res.setHeader("Cache-Control", "private, max-age=300");
       res.setHeader("Content-Security-Policy", "default-src 'none'; sandbox");
-      evidence.open(asset.object_key).on("error", () => res.destroy()).pipe(res);
+      const range = parseRange(req.header("range"), size);
+      if (range === "invalid") {
+        res.status(416).setHeader("Content-Range", `bytes */${size}`).end();
+        return;
+      }
+      if (range) {
+        res.status(206).setHeader("Content-Range", `bytes ${range.start}-${range.end}/${size}`);
+        res.setHeader("Content-Length", String(range.end - range.start + 1));
+      } else {
+        res.setHeader("Content-Length", String(size));
+      }
+      evidence.open(asset.object_key, range ?? undefined).on("error", () => res.destroy()).pipe(res);
     }),
   );
 
-  app.get("/runs/:id", (_req, res) => {
-    res.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'");
-    res.type("html").send(renderRunPage());
-  });
   const demoRefs = parseDemoRuns(config.DEMO_RUNS);
-  const PUBLIC_CSP = "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; media-src 'self'; img-src 'self'";
-  app.get("/", async (_req, res) => {
-    res.setHeader("Content-Security-Policy", PUBLIC_CSP);
-    res.type("html").send(renderHomePage(config, await loadDemoRuns(db, config, demoRefs)));
-  });
-  app.get("/demo", async (_req, res) => {
-    res.setHeader("Content-Security-Policy", PUBLIC_CSP);
-    res.type("html").send(renderDemoPage(config, await loadDemoRuns(db, config, demoRefs)));
-  });
-  app.get("/docs", (_req, res) => {
-    res.type("html").send(renderDocsPage(config));
-  });
+
+  async function loadRow(id: string): Promise<InspectionRow | undefined> {
+    if (!/^[0-9a-f-]{36}$/.test(id)) return undefined;
+    const { rows } = await db.query("SELECT * FROM inspections WHERE id = $1", [id]);
+    return rows[0];
+  }
+
+  async function demoReport(id: string) {
+    const row = demoRefs.some((r) => r.id === id) ? await loadRow(id) : undefined;
+    if (!row) throw new ApiError(404, "JOB_NOT_FOUND", "This run is not part of the public demo.");
+    return buildReport(db, config, row);
+  }
+
+  app.get(
+    "/v1/demo/runs",
+    wrap(async (req, res) => {
+      const runs = [];
+      for (const ref of demoRefs) {
+        const row = await loadRow(ref.id);
+        if (row) runs.push({ role: ref.role, report: await buildReport(db, config, row) });
+      }
+      res.json(envelope(req, { runs }));
+    }),
+  );
+
+  app.get(
+    "/v1/demo/reports/:id",
+    wrap(async (req, res) => {
+      res.json(envelope(req, await demoReport(String(req.params.id))));
+    }),
+  );
+
+  app.get(
+    "/v1/demo/comparison",
+    wrap(async (req, res) => {
+      const before = demoRefs.find((r) => r.role === "failed");
+      const after = demoRefs.find((r) => r.role === "retest");
+      if (!before || !after) throw new ApiError(404, "JOB_NOT_FOUND", "No published before/after pair.");
+      const [a, b] = await Promise.all([demoReport(before.id), demoReport(after.id)]);
+      const check = checkComparable(a, b);
+      if (!check.ok) throw new ApiError(409, "INVALID_INPUT", check.reason);
+      res.json(envelope(req, comparisonBody(a, b)));
+    }),
+  );
+
+  // Private comparison: the caller proves access to both runs with both read tokens.
+  app.get(
+    "/v1/comparisons/:before/:after",
+    wrap(async (req, res) => {
+      const tokens = String(req.header("x-read-tokens") ?? "").split(",").map((t) => t.trim());
+      const ids = [String(req.params.before), String(req.params.after)];
+      const reports = [];
+      for (const [i, id] of ids.entries()) {
+        const row = await loadRow(id);
+        if (!row) throw new ApiError(404, "JOB_NOT_FOUND", "No such inspection.");
+        if (!tokenMatches(tokens[i], (row as InspectionRow & { report_access_key_hash: string }).report_access_key_hash)) {
+          throw new ApiError(401, "REPORT_ACCESS_DENIED", "A valid read token is required for both runs.");
+        }
+        reports.push(await buildReport(db, config, row));
+      }
+      const [a, b] = reports as [Awaited<ReturnType<typeof buildReport>>, Awaited<ReturnType<typeof buildReport>>];
+      const check = checkComparable(a, b);
+      if (!check.ok) throw new ApiError(409, "INVALID_INPUT", check.reason);
+      res.json(envelope(req, comparisonBody(a, b)));
+    }),
+  );
+
+  registerWebRoutes(app, { config, loadDemoReports: async () => {
+    const out = [];
+    for (const ref of demoRefs) {
+      const row = await loadRow(ref.id);
+      if (row) out.push({ role: ref.role, report: await buildReport(db, config, row) });
+    }
+    return out;
+  } });
 
   app.use((req, res) => {
+    if (req.accepts(["html", "json"]) === "html" && !req.path.startsWith("/v1/")) {
+      res.status(404).type("html").send(renderNotFound(config.BUILD_VERSION));
+      return;
+    }
     res.status(404).json({ ok: false, code: "JOB_NOT_FOUND", message: "Not found.", retryable: false, request_id: req.requestId });
   });
   app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
@@ -505,6 +522,24 @@ export function createApp(deps: AppDeps): express.Express {
   });
 
   return app;
+}
+
+export function parseRange(header: string | undefined, size: number): { start: number; end: number } | null | "invalid" {
+  if (!header) return null;
+  const match = /^bytes=(\d*)-(\d*)$/.exec(header.trim());
+  if (!match || (match[1] === "" && match[2] === "")) return "invalid";
+  let start: number;
+  let end: number;
+  if (match[1] === "") {
+    const suffix = Number(match[2]);
+    start = Math.max(size - suffix, 0);
+    end = size - 1;
+  } else {
+    start = Number(match[1]);
+    end = match[2] === "" ? size - 1 : Math.min(Number(match[2]), size - 1);
+  }
+  if (start > end || start >= size) return "invalid";
+  return { start, end };
 }
 
 function wrap(fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
