@@ -140,7 +140,7 @@
 .demo-head { padding: 40px 0 8px; }
 .demo-head h1 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -.025em; line-height: 1.08; margin: 0 0 12px; font-weight: 650; max-width: 22ch; }
 .demo-head p { color: var(--muted); font-size: 17px; margin: 0 0 20px; max-width: 60ch; }
-.sequence { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.sequence { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
 .run-card { padding: 18px; display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 16px; }
 .run-card .thumb { background: var(--stage); border-radius: 10px; height: 220px; display: grid; place-items: center; overflow: hidden; }
 .run-card .thumb { position: relative; }
@@ -151,7 +151,6 @@
 .run-card dt { color: var(--muted); }
 .run-card dd { margin: 0; overflow-wrap: anywhere; }
 .run-card .links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
-.run-card.control { margin-top: 16px; }
 @media (max-width: 960px) { .sequence { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .run-card { grid-template-columns: 1fr; } .run-card .thumb { height: 260px; } }
 

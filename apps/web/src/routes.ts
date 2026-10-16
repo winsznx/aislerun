@@ -195,16 +195,17 @@ export function renderDemo(config: Config, demo: DemoEntry[]): string {
   const failed = demo.find((d) => d.role === "failed");
   const retest = demo.find((d) => d.role === "retest");
   const control = demo.find((d) => d.role === "control");
+  const blocked = demo.find((d) => d.role === "blocked");
   const body = `<main id="main" class="container">
 <div class="demo-head">
   <span class="fixture-badge">Controlled test storefront</span>
-  <h1 style="margin-top:14px">Three real runs. One broken step. One verified repair.</h1>
+  <h1 style="margin-top:14px">Real paid runs. One broken step. One verified repair.</h1>
   <p>Captured on a controlled test storefront and paid through PayBox. No real purchase was placed.</p>
   ${failed && retest ? `<a class="btn btn-primary" href="/demo/compare">Compare broken vs repaired</a>` : ""}
 </div>
 ${demo.length === 0 ? `<div class="empty-state"><h2>No runs are published yet</h2><p>Published runs appear here once the operator selects them.</p></div>` : ""}
 <div class="sequence">${card(failed, "Broken: mobile failed, desktop passed")}${card(retest, "After repair: both passed")}</div>
-${card(control, "Healthy control: both passed", "control")}
+<div class="sequence">${card(control, "Healthy control: both passed")}${card(blocked, "Bot check: inconclusive, not failed")}</div>
 <p class="small muted" style="margin-top:20px;max-width:72ch">Every target here is a synthetic AisleRun fixture at <a href="${esc(config.FIXTURE_ORIGIN)}">${esc(config.FIXTURE_ORIGIN)}</a>. The broken version has a defect seeded on purpose and the repaired version is that one-line fix. Settlement links open the payment on Base; a payment shows the run was bought, not that the store passed.</p>
 </main>`;
   return layout({ title: "Demo runs · AisleRun", description: "Three PayBox-paid AisleRun inspections of a controlled test storefront: broken, repaired and healthy.", current: "/demo", body, build: config.BUILD_VERSION });
