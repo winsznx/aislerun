@@ -148,6 +148,37 @@ describeDb("API (integration)", () => {
     expect(await count("inspections")).toBe(before);
   });
 
+  it("refuses with RATE_LIMITED, before any payment challenge, when the queue is full", async () => {
+    // #given ten jobs already waiting
+    const q0 = await quote();
+    const paymentId = randomUUID();
+    await db.query("INSERT INTO payments (id, quote_id, provider, network, payer, state, amount_atomic, fingerprint) VALUES ($1, $2, 'x402', 'eip155:8453', '0xq', 'SETTLED', 50000, $3)", [paymentId, q0.quote_id, `fp-${paymentId}`]);
+    const filler: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const qi = await quote();
+      const id = randomUUID();
+      filler.push(id);
+      await db.query(
+        "INSERT INTO inspections (id, quote_id, payment_id, idempotency_key, intent_hash, payer, target_id, product_url, profile, status, report_access_key_hash) VALUES ($1, $2, $3, $4, $5, '0xq', 'fixture-healthy-v1', 'u', 'shopify_checkout_entry_v1', 'QUEUED', 'x')",
+        [id, qi.quote_id, paymentId, `fill-${i}`, `intent-${i}`],
+      );
+    }
+    // #when a new paid request arrives
+    const q = await quote();
+    const res = await post("/v1/inspections", { quote_id: q.quote_id, product_url: productUrl("fixture-healthy-v1"), authorized_target_id: "fixture-healthy-v1", profile: "shopify_checkout_entry_v1", idempotency_key: "queue-full-0001" });
+    // #then it is refused without a 402
+    expect({ status: res.status, challenged: res.headers.get("payment-required") !== null, code: (await res.json()).code }).toEqual({ status: 429, challenged: false, code: "RATE_LIMITED" });
+    await db.query("UPDATE inspections SET status = 'COMPLETED' WHERE id = ANY($1)", [filler]);
+  });
+
+  it("rate-limits quote bursts from one client", async () => {
+    const statuses = [];
+    for (let i = 0; i < 31; i++) {
+      statuses.push((await post("/v1/quotes", { product_url: "https://example.com/x", authorized_target_id: "fixture-healthy-v1", profile: "shopify_checkout_entry_v1" })).status);
+    }
+    expect(statuses.at(-1)).toBe(429);
+  });
+
   it("reads require the inspection's own token", async () => {
     const { rows } = await db.query("SELECT id FROM inspections LIMIT 1");
     const id = rows[0].id as string;

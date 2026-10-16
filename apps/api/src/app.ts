@@ -27,10 +27,12 @@ import {
 import { identityFromHeader, identityFromPayload } from "./payment-identity.js";
 import { paidAccepts } from "./payments.js";
 import { renderDocsPage, renderRunPage } from "./pages.js";
+import { rateLimit } from "./rate-limit.js";
 
 const QUOTE_TTL_MS = 15 * 60 * 1000;
 const ASSET_URL_TTL_SEC = 30 * 60;
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const MAX_BACKLOG = 10;
 
 export interface AppDeps {
   config: Config;
@@ -161,6 +163,10 @@ export function createApp(deps: AppDeps): express.Express {
     );
   });
 
+  app.use("/v1/quotes", rateLimit("quotes", 30, 60_000));
+  app.use("/v1/inspections", rateLimit("inspections", 120, 60_000));
+  app.use("/v1/reports", rateLimit("reports", 240, 60_000));
+
   app.post("/v1/quotes", async (req, res) => {
     const body = QuoteRequest.safeParse(req.body);
     if (!body.success) throw new ApiError(400, "INVALID_INPUT", body.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "));
@@ -212,6 +218,8 @@ export function createApp(deps: AppDeps): express.Express {
       throw new ApiError(409, "IDEMPOTENCY_CONFLICT", "This quote was already used by a different request.");
     }
     if (new Date(quote.expires_at).getTime() < Date.now()) throw new ApiError(410, "QUOTE_EXPIRED", "Quote expired. Request a new one.");
+    const backlog = await db.query("SELECT count(*)::int AS n FROM inspections WHERE status IN ('AWAITING_SETTLEMENT','QUEUED')");
+    if (backlog.rows[0].n >= MAX_BACKLOG) throw new ApiError(429, "RATE_LIMITED", "The inspection queue is full. No payment was requested; retry shortly.", true);
     res.locals.preflight = { body: body.data, normalizedUrl: check.normalizedUrl, quote };
     next();
   }
