@@ -132,3 +132,4 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; font
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+.viewer-stage > video:focus-visible { outline: 3px solid #8FB8DA; outline-offset: -3px; }

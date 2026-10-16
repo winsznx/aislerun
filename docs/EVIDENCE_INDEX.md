@@ -1,6 +1,6 @@
 # Evidence index
 
-Each claim maps to its proof. Run IDs resolve on the live deployment (see README) with the published read tokens on `/demo`.
+Each claim maps to its proof. Run IDs resolve on the live deployment at https://aislerun.158-220-85-120.sslip.io. The three paid runs are published through the allowlisted demo endpoints (`/demo/runs/<id>`, `/v1/demo/reports/<id>`), which never expose read tokens.
 
 | Claim | Evidence | Where |
 |---|---|---|
@@ -18,6 +18,11 @@ Each claim maps to its proof. Run IDs resolve on the live deployment (see README
 | Report links fail closed | No token gives 401. A tampered asset signature gives 403. Signed asset URLs expire after 30 min | live check, `tests/tokens.test.ts` |
 
 Code at time of writing: `2b09143`. Wallet spend so far: $0.16 USDC over 4 paid calls (0.92 → 0.76).
+
+| Production is a separate stable host with an OS-level egress fence | `readyz` ok at https://aislerun.158-220-85-120.sslip.io. A fetch to 169.254.169.254 from inside the app container times out | `infra/vps/README.md`, check 2026-10-16 ~20:10 UTC |
+| UI renders cleanly at release sizes | `scripts/ui-qa.mjs` against production: 6 routes × 1440/1280/768/390, no horizontal overflow, no video taller than its stage, no script errors (the `/nope` 404 is intentional) | run 2026-10-16 ~21:10 UTC |
+| Timeline steps seek the real recording | Enter on "mobile: Cart checked" sets the video to 2.10 s on production | keyboard check 2026-10-16 |
+| Test suite | 75 tests passing (unit + real Postgres + real x402 facilitator + real Chromium) | `npm test`, 2026-10-16 21:02 UTC |
 
 ## Not yet evidenced
 

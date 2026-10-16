@@ -9,7 +9,7 @@ Observed facts only. Each line names how it was observed. Assumptions are listed
 - x402 server: `@x402/express@2.28.0`, `@x402/core@2.28.0`, `@x402/evm@2.28.0` (exact scheme, x402 v2).
 - Facilitator: `https://facilitator.payai.network`. Its `/supported` lists `x402Version 2, exact, eip155:8453` and needs no API key. `https://x402.org/facilitator` lists testnets only.
 - Network/asset: Base mainnet `eip155:8453`, USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`. Receiver `0x50b174FAF12a7c7D6618Ac65D71DF613fEa0F57f`.
-- Public URL: Cloudflare quick tunnel to a local process on the operator's Mac. The URL changes when the tunnel restarts.
+- Public URL during the trials: a Cloudflare quick tunnel to the operator's Mac (that is the URL recorded in the trial traces). Since 2026-10-16 ~20:10 UTC the service runs on a VPS at https://aislerun.158-220-85-120.sslip.io (see `infra/vps/README.md`); the three paid runs and their evidence were migrated there unchanged.
 
 ## PayBox tool surface (docs.paybox.sh/reference/mcp-tools, read 2026-10-16)
 
@@ -39,6 +39,10 @@ Observed facts only. Each line names how it was observed. Assumptions are listed
 - The paid response body carries `inspection_id`, `result_url`, `report_url` and a read token, since headers are dropped.
 - The x402 Express middleware runs the handler **after verify and before settle**, then settles and only then flushes the response. AisleRun therefore creates the job as `AWAITING_SETTLEMENT` in the handler, and moves it to `QUEUED` only from `onAfterSettle`. A settle failure turns it into `PAYMENT_DENIED`. The worker never starts without a recorded settlement.
 - Results are retrieved with free GET reads on `result_url` using the read token. The agent can fetch these with any HTTP tool. Whether a PayBox-hosted agent can do a plain GET is host-dependent and still needs to be checked per host.
+
+## Not yet tested from a chat-hosted agent
+
+Every paid call so far went through the PayBox CLI (`use-service`), which uses the same MCP `use_service` tool server-side. A call from an agent connected through PayBox's MCP connector (for example a claude.ai or Grok host) has not been made from this environment, because no PayBox MCP connector is attached here.
 
 ## Still unverified
 
