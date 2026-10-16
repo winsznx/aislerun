@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Your cart – Fixture Goods</title>
+<link rel="stylesheet" href="/assets/store.css">
+</head>
+<body data-fixture-version="{{VERSION}}">
+<header class="header">
+  <a class="header__logo" href="/v/{{VERSION}}/products/cup">Fixture Goods</a>
+  <a class="header__cart" id="cart-icon-bubble" href="/v/{{VERSION}}/cart">Cart <span class="cart-count-bubble" data-cart-count>0</span></a>
+</header>
+<main class="cart">
+  <h1>Your cart</h1>
+  <ul class="cart-items" data-cart-items></ul>
+  <a class="button cart__checkout-button" href="/v/{{VERSION}}/checkouts/entry" name="checkout">Check out</a>
+</main>
+<footer class="fixture-disclosure">Synthetic AisleRun test fixture <strong>{{VERSION}}</strong>. {{DISCLOSURE}} Not a real store. Nothing is for sale.</footer>
+<script src="/v/{{VERSION}}/assets/cart.js"></script>
+</body>
+</html>

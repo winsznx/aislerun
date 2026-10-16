@@ -1,0 +1,59 @@
+{
+  "plan": null,
+  "response": {
+    "approval_id": null,
+    "error": null,
+    "output": {
+      "approval_id": null,
+      "audit_id": "fdd988e1-e777-45ee-b046-fa87a5e7c72c",
+      "client_id": "3ac2bb6f-7a9b-41c2-bb91-d8a5b3485cec",
+      "credential_id": "8eaa78b8-a959-44a5-9620-545848f5e9f4",
+      "expires_at": "2026-10-16T18:35:01.126145682Z",
+      "one_time": true,
+      "output_id": "6048cd75-50a6-420f-a556-d2ab6b99e0e0",
+      "output_type": "signature",
+      "scope": {
+        "kind": "x402",
+        "network": "eip155:8453",
+        "scheme": "exact"
+      },
+      "value": {
+        "network": "eip155:8453",
+        "payment": {
+          "gateway": true,
+          "header_available": false,
+          "header_name": "PAYMENT-SIGNATURE",
+          "network": "eip155:8453",
+          "ok": true,
+          "proof_status": "created",
+          "scheme": "exact",
+          "status": "succeeded"
+        },
+        "resource": {
+          "body": "{\"echoed\":{\"probe\":\"paybox-spike-2\"},\"method\":\"POST\",\"at\":\"2026-10-16T18:24:59.010Z\"}",
+          "body_truncated": false,
+          "content_type": "application/json; charset=utf-8",
+          "message": "Payment succeeded and the paid resource returned HTTP success.",
+          "ok": true,
+          "payment_status": "succeeded",
+          "retry_requires_new_payment": false,
+          "status": 200
+        },
+        "response": {
+          "body": "{\"echoed\":{\"probe\":\"paybox-spike-2\"},\"method\":\"POST\",\"at\":\"2026-10-16T18:24:59.010Z\"}",
+          "content_type": "application/json; charset=utf-8",
+          "ok": true,
+          "status": 200,
+          "truncated": false
+        },
+        "scheme": "exact"
+      }
+    },
+    "request_id": "76f9c55c-3ef5-42da-8151-564acb93dffc",
+    "status": "success",
+    "next_action": {
+      "kind": "stop",
+      "reason": "completed"
+    }
+  }
+}

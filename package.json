@@ -1,0 +1,41 @@
+{
+  "name": "aislerun",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "api": "tsx apps/api/src/main.ts",
+    "worker": "tsx apps/worker/src/main.ts",
+    "fixtures": "tsx apps/fixtures/src/main.ts",
+    "start": "tsx apps/api/src/main.ts",
+    "migrate": "tsx db/migrate.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1152.0",
+    "@aws-sdk/s3-request-presigner": "3.1152.0",
+    "@x402/core": "2.28.0",
+    "@x402/evm": "2.28.0",
+    "@x402/express": "2.28.0",
+    "express": "5.3.0",
+    "pg": "8.23.1",
+    "pino": "10.4.0",
+    "playwright": "1.64.1",
+    "tsx": "4.23.15",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@paybox-sh/sdk": "^2.2.0",
+    "@types/express": "5.0.6",
+    "@types/node": "22.19.1",
+    "@types/pg": "8.23.1",
+    "typescript": "5.9.3",
+    "vitest": "5.0.5"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

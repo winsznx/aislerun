@@ -1,0 +1,106 @@
+{
+  "plan": {
+    "binding": {
+      "derivation_path": null,
+      "key_id": null,
+      "wallet_id": "faa436fc-5807-49e7-b2c4-b01369bbe861"
+    },
+    "typed_data": {
+      "domain": {
+        "chainId": 8453,
+        "name": "USD Coin",
+        "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "version": "2"
+      },
+      "message": {
+        "from": "0x78c260d612932FD7F576095955ee7C850c787FCD",
+        "to": "0x50b174FAF12a7c7D6618Ac65D71DF613fEa0F57f",
+        "validAfter": "0",
+        "validBefore": "1792175042",
+        "value": "10000"
+      },
+      "primaryType": "TransferWithAuthorization",
+      "types": {
+        "TransferWithAuthorization": [
+          {
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "validAfter",
+            "type": "uint256"
+          },
+          {
+            "name": "validBefore",
+            "type": "uint256"
+          },
+          {
+            "name": "nonce",
+            "type": "bytes32"
+          }
+        ]
+      }
+    },
+    "x402": {
+      "accepted": {
+        "amount": "10000",
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "extra": {
+          "name": "USD Coin",
+          "version": "2"
+        },
+        "maxTimeoutSeconds": 120,
+        "network": "eip155:8453",
+        "payTo": "0x50b174FAF12a7c7D6618Ac65D71DF613fEa0F57f",
+        "scheme": "exact"
+      },
+      "amount_atomic": "10000",
+      "amount_cents": 1,
+      "amount_usd": "0.01",
+      "authorization": {
+        "from": "0x78c260d612932FD7F576095955ee7C850c787FCD",
+        "to": "0x50b174FAF12a7c7D6618Ac65D71DF613fEa0F57f",
+        "validAfter": "0",
+        "validBefore": "1792175042",
+        "value": "10000"
+      },
+      "gateway": true,
+      "input": {
+        "body": {
+          "probe": "paybox-spike-1"
+        },
+        "headers": null,
+        "method": "POST"
+      },
+      "network": "eip155:8453",
+      "rail": "evm",
+      "resource": {
+        "description": "AisleRun integration spike: echoes the request body after payment",
+        "mimeType": "application/json",
+        "url": "http://smaller-proved-dow-probably.trycloudflare.com/v1/echo-paid"
+      },
+      "resource_url": "https://smaller-proved-dow-probably.trycloudflare.com/v1/echo-paid",
+      "scheme": "exact",
+      "version": 2
+    }
+  },
+  "response": {
+    "approval_id": null,
+    "error": null,
+    "output": null,
+    "request_id": "e0226123-87bc-4359-a7bb-1a6cb1e2d8b6",
+    "status": "pending_signature",
+    "next_action": {
+      "kind": "stop",
+      "reason": "signer_unavailable"
+    }
+  }
+}

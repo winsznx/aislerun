@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="aislerun-fixture" content="{{VERSION}}">
+<title>Stoneware Cup – Fixture Goods</title>
+<link rel="stylesheet" href="/assets/store.css">
+</head>
+<body data-fixture-version="{{VERSION}}">
+<header class="header">
+  <a class="header__logo" href="/v/{{VERSION}}/products/cup">Fixture Goods</a>
+  <a class="header__cart" id="cart-icon-bubble" href="/v/{{VERSION}}/cart" aria-label="Cart">Cart <span class="cart-count-bubble" data-cart-count>0</span></a>
+</header>
+<main class="product" data-product-id="cup-001">
+  <div class="product__media"><div class="product__image" role="img" aria-label="Stoneware cup, speckled glaze"></div></div>
+  <div class="product__info">
+    <h1 class="product__title">Stoneware Cup</h1>
+    <p class="price" data-price="24.00">$24.00 USD</p>
+    <p class="product__stock" data-stock="in_stock">In stock</p>
+    <form class="product-form" action="/v/{{VERSION}}/cart/add" method="post" data-product-form>
+      <fieldset class="product-form__input">
+        <legend>Glaze</legend>
+        <label><input type="radio" name="variant" value="speckle" data-available="true" checked> Speckle</label>
+        <label><input type="radio" name="variant" value="ink" data-available="false" disabled> Ink (sold out)</label>
+      </fieldset>
+      <button type="submit" name="add" class="product-form__submit button" data-testid="add-to-cart">Add to cart</button>
+    </form>
+  </div>
+</main>
+<aside id="CartDrawer" class="cart-drawer" aria-label="Cart drawer" hidden>
+  <h2>Your cart</h2>
+  <ul class="cart-items" data-cart-items></ul>
+  <a class="button cart__checkout-button" href="/v/{{VERSION}}/checkouts/entry" name="checkout">Check out</a>
+</aside>
+<footer class="fixture-disclosure">Synthetic AisleRun test fixture <strong>{{VERSION}}</strong>. {{DISCLOSURE}} Not a real store. Nothing is for sale.</footer>
+<script src="/v/{{VERSION}}/assets/cart.js"></script>
+</body>
+</html>

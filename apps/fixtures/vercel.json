@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npx tsx src/build.ts",
+  "outputDirectory": "dist",
+  "installCommand": "npm i --no-save tsx@4.23.15",
+  "framework": null,
+  "trailingSlash": false,
+  "headers": [{ "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }]
+}
