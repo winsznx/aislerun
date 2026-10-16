@@ -60,13 +60,14 @@ describeDb("worker (integration, real Chromium against deployed fixtures)", () =
     ["fixture-healthy-v1", "PASS", { desktop: ["PASS", null], mobile: ["PASS", null] }],
     ["fixture-mobile-cart-broken-v1", "FAIL", { desktop: ["PASS", null], mobile: ["FAIL", "ADD_TO_CART_NO_EFFECT"] }],
     ["fixture-fixed-v2", "PASS", { desktop: ["PASS", null], mobile: ["PASS", null] }],
+    ["fixture-bot-check-v1", "INCONCLUSIVE", { desktop: ["INCONCLUSIVE", "BROWSER_BLOCKED"], mobile: ["INCONCLUSIVE", "BROWSER_BLOCKED"] }],
   ])("FR-06/07/08: classifies %s as %s", async (version, verdict, runs) => {
     // #given a settled job for the fixture
     await settledJob(version);
     // #when the worker runs it
     const result = await runNext();
     // #then the stored verdicts match the fixture's known state
-    expect({ status: result.status, verdict: result.overall_verdict, runs: result.runs }).toEqual({ status: "COMPLETED", verdict, runs });
+    expect({ status: result.status, verdict: result.overall_verdict, runs: result.runs }).toEqual({ status: verdict === "INCONCLUSIVE" ? "INCONCLUSIVE" : "COMPLETED", verdict, runs });
   }, 120_000);
 
   it("FR-09: stores evidence that belongs to the run, with hashes and sizes", async () => {

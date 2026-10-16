@@ -196,6 +196,7 @@ async function runAttempt(
       const status = response?.status() ?? 0;
       fixtureVersion = await page.locator("body").getAttribute("data-fixture-version");
       const observed = { requested_url: input.productUrl, final_url: finalUrl, http_status: status };
+      await shot("page-loaded");
       if (!isAllowedRequestUrl(finalUrl, target)) {
         return { result: "INCONCLUSIVE", observed, decision: "The page redirected outside the authorized target, so the run stopped.", blocker: "TARGET_LEFT_ALLOWLIST" };
       }
@@ -206,7 +207,6 @@ async function runAttempt(
       if (status >= 400) {
         return { result: "INCONCLUSIVE", observed, decision: `The product page returned HTTP ${status}.`, blocker: "NAVIGATION_FAILED" };
       }
-      await shot("product-loaded");
       return { result: "PASS", observed, decision: `Product page loaded (HTTP ${status}).` };
     });
 

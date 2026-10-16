@@ -2,6 +2,7 @@ export interface FixtureDefinition {
   version: string;
   disclosure: string;
   drawerLookup: string;
+  productPage?: "product.html" | "blocked.html";
 }
 
 const sharedDrawer = `    return document.getElementById("CartDrawer");`;
@@ -19,4 +20,10 @@ export const FIXTURES: FixtureDefinition[] = [
     drawerLookup: mobileBrokenDrawer,
   },
   { version: "fixture-fixed-v2", disclosure: "Repair of the seeded mobile Add to cart defect.", drawerLookup: sharedDrawer },
+  {
+    version: "fixture-bot-check-v1",
+    disclosure: "Simulated bot check: the product page is replaced by a human-verification wall.",
+    drawerLookup: sharedDrawer,
+    productPage: "blocked.html",
+  },
 ];

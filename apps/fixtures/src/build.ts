@@ -28,7 +28,8 @@ const pages: Array<[string, string]> = [
 for (const fixture of FIXTURES) {
   const values = { VERSION: fixture.version, DISCLOSURE: fixture.disclosure, DRAWER_LOOKUP: fixture.drawerLookup };
   const root = join(out, "v", fixture.version);
-  for (const [source, target] of pages) {
+  for (const [page, target] of pages) {
+    const source = page === "product.html" ? (fixture.productPage ?? page) : page;
     const dest = join(root, target);
     mkdirSync(dirname(dest), { recursive: true });
     writeFileSync(dest, render(readFileSync(join(site, source), "utf8"), values));
