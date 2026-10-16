@@ -2,7 +2,7 @@
 
 - Host: `ubuntu@158.220.85.120`, code in `/opt/aislerun/app`, secrets in `/opt/aislerun/.env.production` (mode 600, never committed).
 - Stack: `infra/vps/docker-compose.yml` (Postgres on an internal-only network, app = API + worker + Chromium).
-- Public URL: https://aislerun.158-220-85-120.sslip.io, served by Bluff's Caddy (`/opt/bluff/infra/vps/Caddyfile`, block marked `aislerun`). Backups of the Caddyfile sit next to it as `Caddyfile.bak-aislerun-*`.
+- API URL: https://aislerun.158-220-85-120.sslip.io (page paths redirect to the web app at https://aislerun.vercel.app), served by Bluff's Caddy (`/opt/bluff/infra/vps/Caddyfile`, block marked `aislerun`). Backups of the Caddyfile sit next to it as `Caddyfile.bak-aislerun-*`.
 - Egress: the app's default route is `bluff-production_edge`, which Bluff's `egress-firewall.sh` fences off from private, loopback, link-local (cloud metadata), CGNAT and multicast ranges and from the host. Verified: a fetch to 169.254.169.254 from inside the container times out.
 
 ## Deploy

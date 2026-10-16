@@ -2,9 +2,9 @@
 
 No wallet needed to review.
 
-1. Open https://aislerun.158-220-85-120.sslip.io and press **Watch a real inspection**. The mobile recording shows Add to cart pressed and the cart staying at 0. The verdict bar shows mobile FAIL, desktop PASS and the payment settled on Base. Click a step in the timeline to jump the recording to it.
-2. Press **Compare with the paid retest** (https://aislerun.158-220-85-120.sslip.io/demo/compare). It's a separate inspection of `fixture-fixed-v2`, paid separately. Mobile now reaches checkout entry. The table and the repair diff come from the stored run records and the fixture source.
-3. **Demo** (https://aislerun.158-220-85-120.sslip.io/demo) lists all three paid runs with full IDs and settlement transactions.
+1. Open https://aislerun.vercel.app and press **Watch a real inspection**. The mobile recording shows Add to cart pressed and the cart staying at 0. The verdict bar shows mobile FAIL, desktop PASS and the payment settled on Base. Click a step in the timeline to jump the recording to it.
+2. Press **Compare with the retest** (https://aislerun.vercel.app/demo/compare). It's a separate inspection of `fixture-fixed-v2`, paid separately. Mobile now reaches checkout entry. The table and the repair diff come from the stored run records and the fixture source.
+3. **Runs** (https://aislerun.vercel.app/demo) lists all four paid runs with full IDs and settlement transactions.
 
 ## Verifying the paid path yourself
 

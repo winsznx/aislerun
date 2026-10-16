@@ -6,13 +6,13 @@ Your store can load and buying can still break. AisleRun is a shopper test an AI
 
 *Left: run AR-2C076B7F, mobile FAIL `ADD_TO_CART_NO_EFFECT`. Right: run AR-F3F13C4C, mobile PASS. Two separate PayBox-paid runs on AisleRun's controlled test fixture, real-time Playwright recordings.*
 
-**Live:** https://aislerun.158-220-85-120.sslip.io · [demo runs](https://aislerun.158-220-85-120.sslip.io/demo) · [before and after](https://aislerun.158-220-85-120.sslip.io/demo/compare) · [API docs](https://aislerun.158-220-85-120.sslip.io/docs)
+**Live:** https://aislerun.vercel.app · API https://aislerun.158-220-85-120.sslip.io · [demo runs](https://aislerun.vercel.app/demo) · [before and after](https://aislerun.vercel.app/demo/compare) · [API docs](https://aislerun.vercel.app/docs)
 
 ## Review it in three clicks
 
-1. Open https://aislerun.158-220-85-120.sslip.io and press **Watch a real inspection**. The mobile recording shows Add to cart pressed and the cart staying at 0. The first blocker, the raw console error and the payment's Base transaction are on the same screen.
-2. Press **Compare with the paid retest**. Two independent paid inspections side by side, a table of what changed, and the actual one-line repair.
-3. Open **Demo** for all three paid runs (broken, repaired, healthy control) with full run IDs and settlement links.
+1. Open https://aislerun.vercel.app and press **Watch a real inspection**. The mobile recording shows Add to cart pressed and the cart staying at 0. The first blocker, the raw console error and the payment's Base transaction are on the same screen.
+2. Press **Compare with the retest**. Two independent paid inspections side by side, a table of what changed, and the actual one-line repair.
+3. Open **Runs** for all four paid runs (broken, repaired, healthy control, bot check) with full run IDs and settlement links.
 
 No wallet is needed to review. Every target is AisleRun's own labelled fixture and no purchase is ever placed.
 
@@ -61,8 +61,8 @@ Fixtures are a static site in `apps/fixtures`, deployed to https://aislerun-fixt
 ## Layout
 
 ```
-apps/api          HTTP API, x402 middleware, report adapter
-apps/web          server-rendered pages and static console/compare scripts
+apps/api          HTTP API, x402 middleware, report adapter (VPS)
+apps/site         Next.js web app: landing, runs, report console, compare, docs (Vercel)
 apps/worker       leased Postgres job loop, evidence upload
 apps/fixtures     synthetic storefront (healthy, mobile-broken, fixed, bot-check)
 packages/inspection  Playwright journey and classifier
@@ -74,7 +74,7 @@ docs/             integration findings, sponsor behaviour, evidence index, build
 
 ## Limitations
 
-- **Hosting**: one Docker stack on a shared VPS behind Caddy (see `infra/vps/`). The hostname is an sslip.io name, not a custom domain.
+- **Hosting**: the web app is on Vercel; the API, worker, Chromium and Postgres run as one Docker stack on a shared VPS behind Caddy (see `infra/vps/`), on an sslip.io hostname rather than a custom domain.
 - **Marketplace**: AisleRun is reachable through PayBox `use_service` by URL. It is not listed in the PayBox marketplace, which MoonPay decides, and it won't show up in `discover_services`, which needs at least 10 payers.
 - **Targets**: only the project's own synthetic fixtures are authorized. No real store has been tested.
 - **Network fence**: the browser blocks every request outside the authorized origin, the API checks that targets resolve to public addresses, and in production the container's only route out is an iptables-fenced network that drops private and metadata addresses.
