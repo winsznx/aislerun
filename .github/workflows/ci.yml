@@ -1,0 +1,25 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env: { POSTGRES_USER: aislerun, POSTGRES_PASSWORD: ci, POSTGRES_DB: aislerun }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U aislerun" --health-interval 3s --health-retries 20
+    env:
+      DATABASE_URL: postgres://aislerun:ci@127.0.0.1:5432/aislerun
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run typecheck
+      - name: Secret scan
+        run: |
+          if git grep -nE '(pbx_live_[A-Za-z0-9]+|-----BEGIN [A-Z ]*PRIVATE KEY|0x[0-9a-fA-F]{64}"?\s*$)' -- ':!docs/evidence' ':!docs/EVIDENCE_INDEX.md' ':!docs/SPONSOR_BEHAVIOUR.md' ':!docs/INTEGRATION_FINDINGS.md'; then
+            echo "possible secret committed"; exit 1; fi
+      - run: npm test
