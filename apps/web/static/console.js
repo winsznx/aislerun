@@ -358,7 +358,7 @@ function renderLive(root, inspection, events, problem) {
       ),
       h("ol", { class: "event-log", reversed: true }, events.slice(-14).reverse().map((e) => h("li", {},
         h("span", { class: "mono muted small" }, formatUtc(e.created_at).slice(11, 19)),
-        h("span", {}, h("strong", {}, e.type.replace(/_/g, " ")), e.details?.viewport ? ` · ${e.details.viewport}` : "", e.details?.step ? ` · ${actionText(e.details.step)}` : "", e.details?.observed ? ` — ${e.details.observed}` : ""),
+        h("span", {}, h("strong", {}, e.type.replace(/_/g, " ")), e.details?.viewport ? ` · ${e.details.viewport}` : "", e.details?.step ? ` · ${actionText(e.details.step)}` : "", e.details?.observed ? `: ${e.details.observed}` : ""),
       ))),
     ),
   );
@@ -371,7 +371,7 @@ function renderStopped(root, inspection, events) {
     h("nav", { class: "crumbs", "aria-label": "Breadcrumb" }, h("a", { href: "/demo" }, "Demo"), " / ", h("span", {}, `Run ${label}`)),
     h("div", { class: "page-title" }, h("h1", {}, info.title)),
     h("div", { class: "notice notice-danger", style: "margin:16px 0" }, h("p", {}, info.now, inspection.error_code ? h("span", { class: "mono" }, ` (${inspection.error_code})`) : null)),
-    h("ol", { class: "event-log panel panel-pad" }, events.map((e) => h("li", {}, h("span", { class: "mono muted small" }, formatUtc(e.created_at).slice(11, 19)), h("span", {}, e.type.replace(/_/g, " "), e.details?.observed ? ` — ${e.details.observed}` : "")))),
+    h("ol", { class: "event-log panel panel-pad" }, events.map((e) => h("li", {}, h("span", { class: "mono muted small" }, formatUtc(e.created_at).slice(11, 19)), h("span", {}, e.type.replace(/_/g, " "), e.details?.observed ? `: ${e.details.observed}` : "")))),
   );
 }
 

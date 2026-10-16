@@ -167,7 +167,7 @@ export function renderHome(config: Config, demo: DemoEntry[]): string {
   <div><h3>What it doesn't</h3><ul><li>Payment, shipping forms or placing an order</li><li>Stores that aren't on the authorized list</li><li>Getting past bot checks. Those come back inconclusive, not failed</li><li>Proving every buyer can check out</li></ul></div>
 </section></div>
 </main>`;
-  return layout({ title: "AisleRun — checkout testing your AI agent can order", description: "A paid, recorded shopper run to checkout entry on mobile and desktop, ordered by an AI agent through PayBox.", current: "/", body, scripts: ["replay.js"], build: config.BUILD_VERSION });
+  return layout({ title: "AisleRun: checkout testing your AI agent can order", description: "A paid, recorded shopper run to checkout entry on mobile and desktop, ordered by an AI agent through PayBox.", current: "/", body, scripts: ["replay.js"], build: config.BUILD_VERSION });
 }
 
 export function renderDemo(config: Config, demo: DemoEntry[]): string {
