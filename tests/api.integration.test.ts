@@ -71,6 +71,11 @@ describeDb("API (integration)", () => {
 
   const count = async (table: string) => Number((await db.query(`SELECT count(*) FROM ${table}`)).rows[0].count);
 
+  it("meta points docs_url at the web app's docs", async () => {
+    const meta = await (await fetch(`${base}/v1/meta`)).json();
+    expect(meta.docs_url).toBe("https://aislerun.example/docs");
+  });
+
   it("FR-01: refuses an unauthorized origin at quote time without creating anything", async () => {
     const res = await post("/v1/quotes", { product_url: "https://example.com/products/cup", authorized_target_id: "fixture-healthy-v1", profile: "shopify_checkout_entry_v1" });
     expect(res.status).toBe(403);

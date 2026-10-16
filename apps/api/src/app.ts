@@ -168,7 +168,7 @@ export function createApp(deps: AppDeps): express.Express {
           price_usd: config.INSPECTION_PRICE_USD,
           facilitator: config.X402_FACILITATOR_URL,
         },
-        docs_url: `${config.SERVICE_BASE_URL}/docs`,
+        docs_url: `${config.WEB_BASE_URL}/docs`,
         limitations: [
           "Only operator-authorized targets listed above can be inspected.",
           "No purchases, logins, payment details or bot-check bypass.",
