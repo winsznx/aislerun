@@ -18,12 +18,10 @@ Each claim maps to its proof. Run IDs resolve on the live deployment at https://
 | Retrying the same intent does not duplicate or recharge | Unpaid replay of inspection 2c076b7f's body returned the same ID with `replayed: true`. A different key on the same quote gets 409 | live check 2026-10-16, `tests/api.integration.test.ts` |
 | A worker crash is a service failure, not a store verdict | A lease-expired job is re-run once on the same payment, then `FAILED_INTERNAL` with no verdict | `tests/worker.integration.test.ts` |
 | Report links fail closed | No token gives 401. A tampered asset signature gives 403. Signed asset URLs expire after 30 min | live check, `tests/tokens.test.ts` |
-
 | Production is a separate stable host with an OS-level egress fence | `readyz` ok at https://aislerun.158-220-85-120.sslip.io. A fetch to 169.254.169.254 from inside the app container times out | `infra/vps/README.md`, check 2026-10-16 ~20:10 UTC |
 | UI renders cleanly at release sizes | `scripts/ui-qa.mjs` against production: 6 routes × 1440/1280/768/390, no horizontal overflow, no video taller than its stage, no script errors (the `/nope` 404 is intentional) | run 2026-10-16 ~21:10 UTC |
 | Timeline steps seek the real recording | Enter on "mobile: Cart checked" sets the video to 2.10 s on production | keyboard check 2026-10-16 |
 | Test suite | 75 tests passing (unit + real Postgres + real x402 facilitator + real Chromium) | `npm test`, 2026-10-16 21:02 UTC |
-
 | Private links fail closed on production | Token-gated report and two-token compare render; a wrong or missing token shows "This report link is not valid"; comparing a run with itself is refused | browser check 2026-10-16 ~20:55 UTC |
 
 Code at time of writing: `4de6aa8`. Wallet spend so far: $0.26 USDC over 6 paid calls (one $0.01 spike, five $0.05 inspections).
