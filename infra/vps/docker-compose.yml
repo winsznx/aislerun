@@ -1,0 +1,55 @@
+# Production stack on the shared Bluff VPS. Run from /opt/aislerun/app:
+#   docker compose -f infra/vps/docker-compose.yml --env-file ../.env.production up -d --build
+# Bluff's Caddy reaches the app as aislerun-app:8790 over the external bluff-production_edge network.
+# That network is fenced by Bluff's egress firewall (no private, loopback, link-local or metadata
+# destinations), and it is the app's default route, so Chromium's own DNS and redirects are fenced too.
+name: aislerun
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aislerun
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: aislerun
+    volumes: [pgdata:/var/lib/postgresql/data]
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aislerun"]
+      interval: 3s
+      retries: 20
+
+  app:
+    build: { context: ../.., dockerfile: Dockerfile }
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    env_file: ../../../.env.production
+    environment:
+      DATABASE_URL: postgres://aislerun:${POSTGRES_PASSWORD}@postgres:5432/aislerun
+      EVIDENCE_DIR: /data/evidence
+      PORT: "8790"
+    volumes: [evidence:/data/evidence]
+    shm_size: 512mb
+    mem_limit: 2g
+    networks:
+      edge:
+        aliases: [aislerun-app]
+        gw_priority: 100
+      internal: {}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8790/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 10s
+      retries: 6
+
+networks:
+  internal:
+    internal: true
+  edge:
+    external: true
+    name: bluff-production_edge
+
+volumes:
+  pgdata:
+  evidence:
