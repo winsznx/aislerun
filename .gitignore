@@ -8,3 +8,4 @@ test-results/
 internal/
 apps/fixtures/dist/
 .evidence/
+!.env.example

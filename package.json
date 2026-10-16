@@ -6,13 +6,13 @@
     "node": ">=22"
   },
   "scripts": {
-    "api": "tsx apps/api/src/main.ts",
-    "worker": "tsx apps/worker/src/main.ts",
-    "fixtures": "tsx apps/fixtures/src/main.ts",
-    "start": "tsx apps/api/src/main.ts",
+    "start": "tsx --env-file=.env apps/api/src/main.ts",
     "migrate": "tsx db/migrate.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:unit": "vitest run tests/targets.test.ts tests/tokens.test.ts",
+    "fixtures:build": "tsx apps/fixtures/src/build.ts",
+    "smoke:fixture": "tsx scripts/smoke-fixture.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1152.0",
@@ -33,6 +33,7 @@
     "@types/node": "22.19.1",
     "@types/pg": "8.23.1",
     "typescript": "5.9.3",
+    "viem": "^2.57.7",
     "vitest": "5.0.5"
   },
   "allowScripts": {
