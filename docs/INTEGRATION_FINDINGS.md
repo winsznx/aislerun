@@ -40,9 +40,16 @@ Observed facts only. Each line names how it was observed. Assumptions are listed
 - The x402 Express middleware runs the handler **after verify and before settle**, then settles and only then flushes the response. AisleRun therefore creates the job as `AWAITING_SETTLEMENT` in the handler, and moves it to `QUEUED` only from `onAfterSettle`. A settle failure turns it into `PAYMENT_DENIED`. The worker never starts without a recorded settlement.
 - Results are retrieved with free GET reads on `result_url` using the read token. The agent can fetch these with any HTTP tool. Whether a PayBox-hosted agent can do a plain GET is host-dependent and still needs to be checked per host.
 
-## Not yet tested from a chat-hosted agent
+## MCP verification (2026-10-16, 23:55 UTC)
 
-Every paid call so far went through the PayBox CLI (`use-service`), which uses the same MCP `use_service` tool server-side. A call from an agent connected through PayBox's MCP connector (for example a claude.ai or Grok host) has not been made from this environment, because no PayBox MCP connector is attached here.
+A raw MCP client on the operator's Mac, using the PayBox CLI's OAuth session, spoke JSON-RPC to the production MCP server at `https://api.paybox.sh/mcp`.
+
+- `initialize` answered with server `rmcp 1.7.0`. `tools/list` returned 30 tools, including `use_service`, `pay_x402`, `get_request` and `reopen_signing_window`. The `use_service` input schema is `{credential_id, url, method?, body?, headers?, mode?}`.
+- `tools/call use_service` with `method: POST` against `/v1/inspections` and a fresh quote for `fixture-fixed-v2`: PayBox fetched our 402, built the exact EIP-3009 authorization (50000 atomic USDC to our receiver on Base), and returned `status: pending_signature`, `next_action: await_human / signing_ui_required`, request `a355344d-16c0-4e58-99a7-5bf76736dac2`. Its plan carried a `service_hint` noting AisleRun's endpoint had already succeeded at 20:48 UTC.
+- `reopen_signing_window` returned an MCP Apps UI resource (`ui://paybox/app`): the PayBox signing window a chat host renders. A raw client cannot render it, and `paybox request <id> --complete-signature` refuses x402 requests ("no signable wallet intent").
+- Result: no payment, no run. Production shows no inspection for that request and the wallet balance is unchanged at 0.66 USDC.
+
+Conclusion: the MCP path works up to signing. Completing a payment through MCP needs a host that renders PayBox's signing UI (claude.ai, ChatGPT or Grok with the PayBox connector). Every completed payment so far went through the PayBox CLI's `use-service`, which signs in-process with the paired key and calls the same server-side tool.
 
 ## Still unverified
 

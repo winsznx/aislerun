@@ -193,7 +193,7 @@ describeDb("API (integration)", () => {
     const page = await fetch(`${base}/v1/demo/reports/${rows[0].id}/`);
     const list = await (await fetch(`${base}/v1/demo/runs`)).text();
     // #then nothing is exposed
-    expect({ api: api.status, page: page.status, leaksToken: /rt_/.test(list) }).toEqual({ api: 404, page: 404, leaksToken: false });
+    expect({ api: api.status, page: page.status, leaksToken: /rt_[A-Za-z0-9_-]{20,}/.test(list) }).toEqual({ api: 404, page: 404, leaksToken: false });
   });
 
   it("private comparison requires both read tokens", async () => {

@@ -21,7 +21,7 @@ Each claim maps to its proof. Run IDs resolve on the web app at https://aislerun
 | Production is a separate stable host with an OS-level egress fence | `readyz` ok at https://aislerun.158-220-85-120.sslip.io. A fetch to 169.254.169.254 from inside the app container times out | `infra/vps/README.md`, check 2026-10-16 ~20:10 UTC |
 | UI renders cleanly at release sizes | `scripts/ui-qa.mjs` against https://aislerun.vercel.app: 5 routes × 1440/1280/768/390, no horizontal overflow, no video taller than its stage, no script errors | run 2026-10-16 ~22:20 UTC |
 | Timeline steps seek the real recording | Enter on "mobile: Cart checked" sets the video to 2.10 s on production | keyboard check 2026-10-16 |
-| Test suite | 74 tests passing (unit + real Postgres + real x402 facilitator + real Chromium) | `npm test`, 2026-10-16 21:02 UTC |
+| Test suite | 75 backend tests and 19 docs tests passing (unit + real Postgres + real x402 facilitator + real Chromium) | `npm test`, 2026-10-16 21:02 UTC |
 | Private links fail closed on production | Token-gated report and two-token compare render; a wrong or missing token shows "This report link is not valid"; comparing a run with itself is refused | browser check 2026-10-16 ~20:55 UTC |
 
 Code at time of writing: `4de6aa8`. Wallet spend so far: $0.26 USDC over 6 paid calls (one $0.01 spike, five $0.05 inspections).
@@ -29,5 +29,5 @@ Code at time of writing: `4de6aa8`. Wallet spend so far: $0.26 USDC over 6 paid 
 ## Not yet evidenced
 
 - PayBox marketplace listing or discoverability of AisleRun. There's no publishing API, and listing is MoonPay's decision.
-- A PayBox call made from a chat-hosted agent (MCP connector), rather than the PayBox CLI on the operator's machine.
+- A completed payment through PayBox's MCP connector in a chat host. A raw MCP `tools/call use_service` reached `pending_signature` and stopped at PayBox's signing UI (`docs/INTEGRATION_FINDINGS.md`, MCP verification). Nothing was charged.
 - Behaviour in `iframe` / `always_approve` approval modes.

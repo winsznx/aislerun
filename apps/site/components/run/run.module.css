@@ -136,3 +136,7 @@ button.stepRow[aria-current="step"] { border-color: var(--brand); box-shadow: 0 
 .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: 0.25; } }
 .banner { border-radius: 14px; padding: 12px 14px; background: var(--unsure-soft); color: #6a4a07; font-size: 13px; margin-bottom: 16px; }
+
+/* 44px touch targets for the small inline links, without changing how they look. */
+.crumbs a { display: inline-flex; align-items: center; min-height: 44px; }
+.tileFoot a { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0; }
