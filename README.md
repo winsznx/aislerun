@@ -58,6 +58,18 @@ What has and hasn't been verified with PayBox:
 - **Not completed:** a raw MCP client calling `use_service` on PayBox's MCP server reached `pending_signature` and stopped at PayBox's signing window, which only a chat host such as claude.ai or ChatGPT can display. Nothing was charged. A payment completed from a chat app has not been done. Details: [docs/INTEGRATION_FINDINGS.md](docs/INTEGRATION_FINDINGS.md).
 - **Not confirmed:** AisleRun is not listed in the PayBox marketplace and doesn't appear in `discover_services`, which only lists services with at least 10 payers. Any PayBox agent can reach it by URL.
 
+## PayBox plugin
+
+[plugin/](plugin/) is the PayBox marketplace plugin, built from MoonPay's plugin starter 1.0.2. Its bundle, `plugin/dist/plugin.mjs`, is what gets uploaded to the developer portal. It has three tools:
+
+| Tool | What it does | Cost |
+|---|---|---|
+| `list_test_stores` | The authorized test stores, the price and the network, from `/v1/meta` | free |
+| `order_inspection` | Gets a quote, then returns an x402 payment proposal for `POST /v1/inspections`. PayBox checks the live 402, asks the user to approve 0.05 USDC on Base, pays and returns the run ID and read token | 0.05 USDC once approved |
+| `get_inspection_result` | Status, verdicts per screen, the settlement transaction and the report link, read with the run's token | free |
+
+The only network host it needs is `aislerun.158-220-85-120.sslip.io`. It needs no secrets or environment variables. `cd plugin && pnpm install --frozen-lockfile && pnpm test` type-checks, builds twice to confirm the bytes match, and runs MoonPay's conformance check. All three tools passed it locally against production on 17 Oct 2026; the hosted checks run in the portal after upload.
+
 ## Run it locally
 
 You need Node 22+, Docker, and network access (the tests reach the public test store and the x402 facilitator). Nothing below spends money.
