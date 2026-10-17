@@ -10,6 +10,8 @@ An online store can load perfectly while the button that matters is broken. On a
 
 **See the failure and the paid retest side by side: https://aislerun.vercel.app/demo/compare**
 
+**Demo video (2 min 15 s): https://x.com/winsznx/status/2111583612470497584**
+
 ## What the merchant experiences
 
 1. The merchant asks their AI agent to check that shoppers can buy a product on their store.
@@ -130,6 +132,7 @@ PayBox pays → the x402 service ([apps/api](apps/api)) verifies and settles the
 
 ## Links
 
+- Demo video: https://x.com/winsznx/status/2111583612470497584
 - Product: https://aislerun.vercel.app
 - Published runs: https://aislerun.vercel.app/demo
 - Before and after: https://aislerun.vercel.app/demo/compare
