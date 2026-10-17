@@ -1,5 +1,7 @@
 'use client'
 
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'

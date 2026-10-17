@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 import { docAsMarkdown, type Doc } from './content'
 import { API_URL, DOC_SECTIONS, SITE_URL } from './manifest'
 

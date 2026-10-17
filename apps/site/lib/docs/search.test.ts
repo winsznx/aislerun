@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { parseDoc } from './markdown'

@@ -1,5 +1,7 @@
 'use client'
 
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
+
 import { useState } from 'react'
 import styles from './docs.module.css'
 

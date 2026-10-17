@@ -1,5 +1,7 @@
 'use client'
 
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
+
 import { useEffect, useState } from 'react'
 import type { DocHeading } from '../../lib/docs/markdown'
 import styles from './docs.module.css'

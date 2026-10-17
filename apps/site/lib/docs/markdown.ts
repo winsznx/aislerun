@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 import { Marked, Renderer, walkTokens, type Token, type Tokens } from 'marked'
 import { SITE_URL } from './manifest'
 

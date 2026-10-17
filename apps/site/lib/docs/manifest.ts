@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 export const SITE_URL = "https://aislerun.vercel.app";
 export const API_URL = "https://aislerun.158-220-85-120.sslip.io";
 export const INTRODUCTION_SLUG = "introduction";

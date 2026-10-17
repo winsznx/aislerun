@@ -1,5 +1,5 @@
 .shell {
-  /* Floatless's docs layout, rebound to AisleRun's closeout-derived tokens. */
+  /* Floatless's docs layout (MIT, see apps/site/lib/docs/LICENSE-floatless), rebound to AisleRun's tokens. */
   --bone: #ffffff;
   --white: #ffffff;
   --soft: var(--surface-muted);

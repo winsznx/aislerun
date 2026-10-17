@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { Doc } from '../../lib/docs/content'

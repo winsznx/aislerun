@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 import { INTRODUCTION_SLUG } from './manifest'
 import type { DocChunk, DocSection } from './markdown'
 

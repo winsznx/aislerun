@@ -1,3 +1,4 @@
+// Adapted from Floatless (MIT). See apps/site/lib/docs/LICENSE-floatless.
 import { readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { DOC_PAGES, SITE_URL, type IndexedDocPage } from './manifest'
